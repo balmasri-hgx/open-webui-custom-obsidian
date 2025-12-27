@@ -90,6 +90,8 @@
 	import Messages from '$lib/components/chat/Messages.svelte';
 	import Navbar from '$lib/components/chat/Navbar.svelte';
 	import ChatControls from './ChatControls.svelte';
+	import WebhookFormModal from './WebhookFormModal.svelte';
+	import { getWebhookConfig, type WebhookFormField } from '$lib/apis/webhooks';
 	import EventConfirmDialog from '../common/ConfirmDialog.svelte';
 	import Placeholder from './Placeholder.svelte';
 	import NotificationToast from '../NotificationToast.svelte';
@@ -135,6 +137,13 @@
 
 	let selectedToolIds = [];
 	let selectedFilterIds = [];
+
+	// Workflow-only model form modal state
+	let showWorkflowFormModal = false;
+	let workflowModelId = '';
+	let workflowFormTitle = '';
+	let workflowFormDescription = '';
+	let workflowFormFields: WebhookFormField[] = [];
 	let imageGenerationEnabled = false;
 	let webSearchEnabled = false;
 	let codeInterpreterEnabled = false;
@@ -1558,6 +1567,25 @@
 			return;
 		}
 
+		// Check if selected model is workflow-only
+		const selectedModelId = selectedModels[0];
+		const selectedModel = $models.find((m) => m.id === selectedModelId);
+		if (selectedModel?.info?.meta?.webhook?.enabled && selectedModel?.info?.meta?.webhook?.workflow_only) {
+			try {
+				const config = await getWebhookConfig(localStorage.token, selectedModelId);
+				if (config.enabled && config.workflow_only) {
+					workflowModelId = selectedModelId;
+					workflowFormTitle = config.form_title || selectedModel.name || 'Workflow Form';
+					workflowFormDescription = config.form_description || '';
+					workflowFormFields = config.form_fields || [];
+					showWorkflowFormModal = true;
+					return; // Don't proceed with LLM submission
+				}
+			} catch (e) {
+				console.error('Failed to check workflow config:', e);
+			}
+		}
+
 		if (
 			files.length > 0 &&
 			files.filter((file) => file.type !== 'image' && file.status === 'uploading').length > 0
@@ -2541,6 +2569,51 @@
 											submitPrompt(e.detail.replaceAll('\n\n', '\n'));
 										}
 									}}
+									on:webhook-response={async (e) => {
+										const { message, data, file_url, file_name } = e.detail;
+										
+										// Add workflow response as assistant message
+										const modelId = selectedModels[0] || 'system';
+										const parentId = history.currentId;
+										
+										let responseContent = message || 'Workflow completed.';
+										
+										// Format structured data as markdown table if it's an array of objects
+										if (data && Array.isArray(data) && data.length > 0 && typeof data[0] === 'object') {
+											const headers = Object.keys(data[0]);
+											const headerRow = '| ' + headers.join(' | ') + ' |';
+											const separatorRow = '| ' + headers.map(() => '---').join(' | ') + ' |';
+											const dataRows = data.map(row => 
+												'| ' + headers.map(h => String(row[h] ?? '-')).join(' | ') + ' |'
+											).join('\n');
+											responseContent += `\n\n${headerRow}\n${separatorRow}\n${dataRows}`;
+										} else if (data && typeof data === 'object' && !Array.isArray(data)) {
+											// Format key-value pairs
+											const entries = Object.entries(data);
+											if (entries.length > 0) {
+												responseContent += '\n\n| Key | Value |\n| --- | --- |';
+												entries.forEach(([key, value]) => {
+													responseContent += `\n| ${key} | ${String(value ?? '-')} |`;
+												});
+											}
+										}
+										
+										if (file_url) {
+											const fileName = file_name || 'Download File';
+											responseContent += `\n\n📎 **Download:** [${fileName}](${file_url})`;
+										}
+										
+										await addMessages({
+											modelId,
+											parentId,
+											messages: [
+												{
+													role: 'assistant',
+													content: responseContent
+												}
+											]
+										});
+									}}
 								/>
 
 								<div
@@ -2619,6 +2692,64 @@
 		</div>
 	{/if}
 </div>
+
+<!-- Workflow-only Model Form Modal -->
+<WebhookFormModal
+	bind:show={showWorkflowFormModal}
+	modelId={workflowModelId}
+	formTitle={workflowFormTitle}
+	formDescription={workflowFormDescription}
+	formFields={workflowFormFields}
+	chatId={$chatId}
+	on:success={async (e) => {
+		const { message, data, file_url, file_name } = e.detail;
+		
+		// Add workflow response as assistant message
+		const modelId = workflowModelId || 'system';
+		const parentId = history.currentId;
+		
+		let responseContent = message || 'Workflow completed.';
+		
+		// Format structured data as markdown table if it's an array of objects
+		if (data && Array.isArray(data) && data.length > 0 && typeof data[0] === 'object') {
+			const headers = Object.keys(data[0]);
+			const headerRow = '| ' + headers.join(' | ') + ' |';
+			const separatorRow = '| ' + headers.map(() => '---').join(' | ') + ' |';
+			const dataRows = data.map(row => 
+				'| ' + headers.map(h => String(row[h] ?? '-')).join(' | ') + ' |'
+			).join('\n');
+			responseContent += `\n\n${headerRow}\n${separatorRow}\n${dataRows}`;
+		} else if (data && typeof data === 'object' && !Array.isArray(data)) {
+			// Format key-value pairs
+			const entries = Object.entries(data);
+			if (entries.length > 0) {
+				responseContent += '\n\n| Key | Value |\n| --- | --- |';
+				entries.forEach(([key, value]) => {
+					responseContent += `\n| ${key} | ${String(value ?? '-')} |`;
+				});
+			}
+		}
+		
+		if (file_url) {
+			const fileName = file_name || 'Download File';
+			responseContent += `\n\n📎 **Download:** [${fileName}](${file_url})`;
+		}
+		
+		await addMessages({
+			modelId,
+			parentId,
+			messages: [
+				{
+					role: 'assistant',
+					content: responseContent
+				}
+			]
+		});
+	}}
+	on:close={() => {
+		showWorkflowFormModal = false;
+	}}
+/>
 
 <style>
 	::-webkit-scrollbar {

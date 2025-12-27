@@ -1,1 +1,21 @@
-{}
+{
+  "name": "Obsidian",
+  "short_name": "Obsidian",
+  "icons": [
+    {
+      "src": "/static/HLX-black.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/HLX-black.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#2e293a",
+  "background_color": "#1c1926",
+  "display": "standalone"
+}

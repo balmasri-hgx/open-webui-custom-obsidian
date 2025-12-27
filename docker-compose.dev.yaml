@@ -1,0 +1,59 @@
+# =============================================================================
+# Obsidian Development Mode - Full Hot Reload
+# =============================================================================
+# Usage: docker compose -f docker-compose.dev.yaml up
+#
+# This mounts your source code and runs Vite dev server
+# Changes to ANY file (Svelte, TS, CSS, HTML) update instantly!
+# =============================================================================
+
+services:
+  ollama:
+    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
+    container_name: ollama
+    volumes:
+      - ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+    pull_policy: always
+    tty: true
+    restart: unless-stopped
+
+  obsidian-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: obsidian-dev
+    volumes:
+      # Mount source code for hot reload
+      - ./src:/app/src:ro
+      - ./static:/app/static:ro
+      # Mount backend for hot reload
+      - ./backend:/app/backend
+      # Mount config files
+      - ./svelte.config.js:/app/svelte.config.js:ro
+      - ./vite.config.ts:/app/vite.config.ts:ro
+      - ./tailwind.config.js:/app/tailwind.config.js:ro
+      - ./postcss.config.js:/app/postcss.config.js:ro
+      - ./tsconfig.json:/app/tsconfig.json:ro
+      # Persist data
+      - obsidian-dev-data:/app/backend/data
+    depends_on:
+      - ollama
+    ports:
+      # Vite dev server
+      - ${OPEN_WEBUI_PORT-3000}:5173
+      # Backend API
+      - "8080:8080"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY-}
+      - NODE_ENV=development
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+
+volumes:
+  ollama: {}
+  obsidian-dev-data: {}
+

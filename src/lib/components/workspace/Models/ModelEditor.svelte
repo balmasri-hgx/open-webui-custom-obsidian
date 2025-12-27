@@ -71,7 +71,7 @@
 		base_model_id: null,
 		name: '',
 		meta: {
-			profile_image_url: `${WEBUI_BASE_URL}/static/favicon.png`,
+			profile_image_url: `${WEBUI_BASE_URL}/static/HLX-white.png`,
 			description: '',
 			suggestion_prompts: null,
 			tags: []
@@ -105,6 +105,25 @@
 
 	let actionIds = [];
 	let accessControl = {};
+
+	// Webhook configuration
+	let webhookEnabled = false;
+	let webhookWorkflowOnly = false;
+	let webhookUrl = '';
+	let webhookSlashCommand = '';
+	let webhookFormTitle = '';
+	let webhookFormDescription = '';
+	let webhookFormFields: Array<{
+		name: string;
+		label: string;
+		type: string;
+		required: boolean;
+		placeholder: string;
+		options: string[];
+		default: string;
+		accept?: string;
+		multiple?: boolean;
+	}> = [];
 
 	const submitHandler = async () => {
 		loading = true;
@@ -192,6 +211,23 @@
 			}
 		}
 
+		// Save webhook configuration
+		if (webhookEnabled) {
+			info.meta.webhook = {
+				enabled: webhookEnabled,
+				workflow_only: webhookWorkflowOnly,
+				webhook_url: webhookUrl.trim() || null,
+				slash_command: webhookSlashCommand.trim() || null,
+				form_title: webhookFormTitle.trim() || null,
+				form_description: webhookFormDescription.trim() || null,
+				form_fields: webhookFormFields.length > 0 ? webhookFormFields : null
+			};
+		} else {
+			if (info.meta.webhook) {
+				delete info.meta.webhook;
+			}
+		}
+
 		info.params.system = system.trim() === '' ? null : system;
 		info.params.stop = params.stop ? params.stop.split(',').filter((s) => s.trim()) : null;
 		Object.keys(info.params).forEach((key) => {
@@ -273,6 +309,16 @@
 
 			capabilities = { ...capabilities, ...(model?.meta?.capabilities ?? {}) };
 			defaultFeatureIds = model?.meta?.defaultFeatureIds ?? [];
+
+			// Load webhook configuration
+			const webhook = model?.meta?.webhook ?? {};
+			webhookEnabled = webhook.enabled ?? false;
+			webhookWorkflowOnly = webhook.workflow_only ?? false;
+			webhookUrl = webhook.webhook_url ?? '';
+			webhookSlashCommand = webhook.slash_command ?? '';
+			webhookFormTitle = webhook.form_title ?? '';
+			webhookFormDescription = webhook.form_description ?? '';
+			webhookFormFields = webhook.form_fields ?? [];
 
 			if ('access_control' in model) {
 				accessControl = model.access_control;
@@ -418,7 +464,7 @@
 					<div class="self-center">
 						<button
 							class="rounded-xl flex shrink-0 items-center {info.meta.profile_image_url !==
-							`${WEBUI_BASE_URL}/static/favicon.png`
+							`${WEBUI_BASE_URL}/static/HLX-white.png`
 								? 'bg-transparent'
 								: 'bg-white'} shadow-xl group relative"
 							type="button"
@@ -434,7 +480,7 @@
 								/>
 							{:else}
 								<img
-									src="{WEBUI_BASE_URL}/static/favicon.png"
+									src="{WEBUI_BASE_URL}/static/HLX-white.png"
 									alt="model profile"
 									class=" rounded-xl sm:size-60 size-max object-cover shrink-0"
 								/>
@@ -470,7 +516,7 @@
 							<button
 								class="px-2 py-1 text-gray-500 rounded-lg text-xs"
 								on:click={() => {
-									info.meta.profile_image_url = `${WEBUI_BASE_URL}/static/favicon.png`;
+									info.meta.profile_image_url = `${WEBUI_BASE_URL}/static/HLX-white.png`;
 								}}
 								type="button"
 							>
@@ -758,6 +804,252 @@
 							</div>
 						{/if}
 					{/if}
+
+					<hr class=" border-gray-100/30 dark:border-gray-850/30 my-2" />
+
+					<!-- Webhook/n8n Integration Section -->
+					<div class="my-2">
+						<div class="flex w-full justify-between items-center mb-2">
+							<div class="self-center text-xs font-medium text-gray-500">
+								{$i18n.t('Workflow Integration (n8n)')}
+							</div>
+							<button
+								class="p-1 px-3 text-xs flex rounded-sm transition"
+								type="button"
+								on:click={() => {
+									webhookEnabled = !webhookEnabled;
+								}}
+							>
+								{#if webhookEnabled}
+									<span class="text-green-500">{$i18n.t('Enabled')}</span>
+								{:else}
+									<span>{$i18n.t('Disabled')}</span>
+								{/if}
+							</button>
+						</div>
+
+						{#if webhookEnabled}
+							<div class="space-y-3">
+								<!-- Webhook URL -->
+								<div>
+									<label class="text-xs font-medium mb-1 block">{$i18n.t('Webhook URL')}</label>
+									<input
+										type="url"
+										bind:value={webhookUrl}
+										placeholder="https://n8n.example.com/webhook/..."
+										class="w-full text-sm px-3 py-2 bg-transparent border border-gray-200 dark:border-gray-700 rounded-lg outline-hidden"
+									/>
+								</div>
+
+								<!-- Workflow Only Mode -->
+								<div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+									<div>
+										<label class="text-sm font-medium">{$i18n.t('Workflow Only Mode')}</label>
+										<p class="text-xs text-gray-500 mt-0.5">
+											{$i18n.t('When enabled, selecting this model will trigger the workflow form instead of sending to LLM')}
+										</p>
+									</div>
+									<button
+										type="button"
+										class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {webhookWorkflowOnly ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}"
+										on:click={() => webhookWorkflowOnly = !webhookWorkflowOnly}
+									>
+										<span
+											class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {webhookWorkflowOnly ? 'translate-x-5' : 'translate-x-0'}"
+										/>
+									</button>
+								</div>
+
+								<!-- Slash Command -->
+								<div>
+									<label class="text-xs font-medium mb-1 block">{$i18n.t('Slash Command')}</label>
+									<input
+										type="text"
+										bind:value={webhookSlashCommand}
+										placeholder="/report"
+										class="w-full text-sm px-3 py-2 bg-transparent border border-gray-200 dark:border-gray-700 rounded-lg outline-hidden"
+									/>
+									<p class="text-xs text-gray-500 mt-1">
+										{$i18n.t('Users can type this command to trigger the workflow form')}
+									</p>
+								</div>
+
+								<!-- Form Title -->
+								<div>
+									<label class="text-xs font-medium mb-1 block">{$i18n.t('Form Title')}</label>
+									<input
+										type="text"
+										bind:value={webhookFormTitle}
+										placeholder="Generate Report"
+										class="w-full text-sm px-3 py-2 bg-transparent border border-gray-200 dark:border-gray-700 rounded-lg outline-hidden"
+									/>
+								</div>
+
+								<!-- Form Description -->
+								<div>
+									<label class="text-xs font-medium mb-1 block">{$i18n.t('Form Description')}</label>
+									<textarea
+										bind:value={webhookFormDescription}
+										placeholder="Enter the parameters for your report"
+										rows="2"
+										class="w-full text-sm px-3 py-2 bg-transparent border border-gray-200 dark:border-gray-700 rounded-lg outline-hidden resize-none"
+									/>
+								</div>
+
+								<!-- Form Fields -->
+								<div>
+									<div class="flex justify-between items-center mb-2">
+										<label class="text-xs font-medium">{$i18n.t('Form Fields')}</label>
+										<button
+											type="button"
+											class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+											on:click={() => {
+												webhookFormFields = [
+													...webhookFormFields,
+													{
+														name: '',
+														label: '',
+														type: 'text',
+														required: false,
+														placeholder: '',
+														options: [],
+														default: '',
+														accept: '',
+														multiple: false
+													}
+												];
+											}}
+										>
+											+ {$i18n.t('Add Field')}
+										</button>
+									</div>
+
+									{#each webhookFormFields as field, fieldIdx}
+										<div class="border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-2">
+											<div class="flex justify-between items-center mb-2">
+												<span class="text-xs font-medium text-gray-500">
+													{$i18n.t('Field')} {fieldIdx + 1}
+												</span>
+												<button
+													type="button"
+													class="text-red-500 text-xs hover:text-red-600"
+													on:click={() => {
+														webhookFormFields = webhookFormFields.filter((_, i) => i !== fieldIdx);
+													}}
+												>
+													{$i18n.t('Remove')}
+												</button>
+											</div>
+
+											<div class="grid grid-cols-2 gap-2 mb-2">
+												<div>
+													<label class="text-xs text-gray-500">{$i18n.t('Field Name')}</label>
+													<input
+														type="text"
+														bind:value={field.name}
+														placeholder="project_id"
+														class="w-full text-xs px-2 py-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded outline-hidden"
+													/>
+												</div>
+												<div>
+													<label class="text-xs text-gray-500">{$i18n.t('Label')}</label>
+													<input
+														type="text"
+														bind:value={field.label}
+														placeholder="Project ID"
+														class="w-full text-xs px-2 py-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded outline-hidden"
+													/>
+												</div>
+											</div>
+
+											<div class="grid grid-cols-2 gap-2 mb-2">
+												<div>
+													<label class="text-xs text-gray-500">{$i18n.t('Type')}</label>
+													<select
+														bind:value={field.type}
+														class="w-full text-xs px-2 py-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded outline-hidden"
+													>
+														<option value="text">Text</option>
+														<option value="number">Number</option>
+														<option value="date">Date</option>
+														<option value="select">Select</option>
+														<option value="textarea">Textarea</option>
+														<option value="file">File Upload</option>
+													</select>
+												</div>
+												<div class="flex items-center">
+													<label class="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+														<input type="checkbox" bind:checked={field.required} class="rounded" />
+														{$i18n.t('Required')}
+													</label>
+												</div>
+											</div>
+
+											<div class="grid grid-cols-2 gap-2">
+												<div>
+													<label class="text-xs text-gray-500">{$i18n.t('Placeholder')}</label>
+													<input
+														type="text"
+														bind:value={field.placeholder}
+														placeholder="Enter value..."
+														class="w-full text-xs px-2 py-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded outline-hidden"
+													/>
+												</div>
+												<div>
+													<label class="text-xs text-gray-500">{$i18n.t('Default Value')}</label>
+													<input
+														type="text"
+														bind:value={field.default}
+														placeholder=""
+														class="w-full text-xs px-2 py-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded outline-hidden"
+													/>
+												</div>
+											</div>
+
+											{#if field.type === 'select'}
+												<div class="mt-2">
+													<label class="text-xs text-gray-500">{$i18n.t('Options (comma-separated)')}</label>
+													<input
+														type="text"
+														value={field.options.join(', ')}
+														on:input={(e) => {
+															field.options = e.target.value.split(',').map((o) => o.trim()).filter((o) => o);
+														}}
+														placeholder="Option 1, Option 2, Option 3"
+														class="w-full text-xs px-2 py-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded outline-hidden"
+													/>
+												</div>
+											{:else if field.type === 'file'}
+												<div class="mt-2 grid grid-cols-2 gap-2">
+													<div>
+														<label class="text-xs text-gray-500">{$i18n.t('Accepted File Types')}</label>
+														<input
+															type="text"
+															bind:value={field.accept}
+															placeholder=".xlsx,.csv,.pdf"
+															class="w-full text-xs px-2 py-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded outline-hidden"
+														/>
+													</div>
+													<div class="flex items-center pt-4">
+														<label class="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+															<input type="checkbox" bind:checked={field.multiple} class="rounded" />
+															{$i18n.t('Allow Multiple')}
+														</label>
+													</div>
+												</div>
+											{/if}
+										</div>
+									{/each}
+
+									{#if webhookFormFields.length === 0}
+										<p class="text-xs text-gray-500 italic">
+											{$i18n.t('No form fields configured. Click "Add Field" to create input fields for the workflow.')}
+										</p>
+									{/if}
+								</div>
+							</div>
+						{/if}
+					</div>
 
 					<hr class=" border-gray-100/30 dark:border-gray-850/30 my-2" />
 

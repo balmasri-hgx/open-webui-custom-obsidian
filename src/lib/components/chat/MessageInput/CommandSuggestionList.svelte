@@ -3,13 +3,18 @@
 
 	import { getPrompts } from '$lib/apis/prompts';
 	import { getKnowledgeBases } from '$lib/apis/knowledge';
+	import { getWebhookEnabledModels, type WebhookModel } from '$lib/apis/webhooks';
 
 	import Prompts from './Commands/Prompts.svelte';
 	import Knowledge from './Commands/Knowledge.svelte';
 	import Models from './Commands/Models.svelte';
+	import Webhooks from './Commands/Webhooks.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 
 	import { onMount } from 'svelte';
+
+	// Webhook models store
+	let webhookModels: WebhookModel[] = [];
 
 	export let char = '';
 	export let query = '';
@@ -17,6 +22,7 @@
 
 	export let onSelect = (e) => {};
 	export let onUpload = (e) => {};
+	export let onWebhookSelect = (e) => {};
 	export let insertTextHandler = (text) => {};
 
 	let suggestionElement = null;
@@ -28,6 +34,14 @@
 		await Promise.all([
 			(async () => {
 				prompts.set(await getPrompts(localStorage.token));
+			})(),
+			(async () => {
+				try {
+					webhookModels = await getWebhookEnabledModels(localStorage.token);
+				} catch (e) {
+					console.error('Failed to load webhook models:', e);
+					webhookModels = [];
+				}
 			})()
 		]);
 		loading = false;
@@ -82,6 +96,23 @@
 	<div class="overflow-y-auto scrollbar-thin max-h-60">
 		{#if !loading}
 			{#if char === '/'}
+				<!-- Show webhooks first if any match -->
+				{#if webhookModels.length > 0}
+					<Webhooks
+						bind:this={suggestionElement}
+						{query}
+						bind:filteredItems
+						webhooks={webhookModels}
+						onSelect={(e) => {
+							const { type, data } = e;
+							if (type === 'webhook') {
+								insertTextHandler('');
+								onWebhookSelect(data);
+							}
+						}}
+					/>
+				{/if}
+				
 				<Prompts
 					bind:this={suggestionElement}
 					{query}

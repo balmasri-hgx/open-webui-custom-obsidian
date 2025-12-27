@@ -848,11 +848,11 @@ for file_path in (FRONTEND_BUILD_DIR / "static").glob("**/*"):
         except Exception as e:
             logging.error(f"An error occurred: {e}")
 
-frontend_favicon = FRONTEND_BUILD_DIR / "static" / "favicon.png"
+frontend_favicon = FRONTEND_BUILD_DIR / "static" / "HLX-black.png"
 
 if frontend_favicon.exists():
     try:
-        shutil.copyfile(frontend_favicon, STATIC_DIR / "favicon.png")
+        shutil.copyfile(frontend_favicon, STATIC_DIR / "HLX-black.png")
     except Exception as e:
         logging.error(f"An error occurred: {e}")
 
@@ -1568,7 +1568,7 @@ DEFAULT_ARENA_MODEL = {
     "id": "arena-model",
     "name": "Arena Model",
     "meta": {
-        "profile_image_url": "/favicon.png",
+        "profile_image_url": "/static/HLX-white.png",
         "description": "Submit your questions to anonymous AI chatbots and vote on the best response.",
         "model_ids": None,
     },

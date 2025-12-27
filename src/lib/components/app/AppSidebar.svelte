@@ -25,12 +25,12 @@
 					}
 				}}
 			>
-				<img
-					src="{WEBUI_BASE_URL}/static/splash.png"
-					class="size-11 dark:invert p-0.5"
-					alt="logo"
-					draggable="false"
-				/>
+			<img
+				src="{WEBUI_BASE_URL}/static/HLX-black.png"
+				class="h-10 w-auto dark:invert p-0.5"
+				alt="Obsidian"
+				draggable="false"
+			/>
 			</button>
 		</Tooltip>
 	</div>
@@ -49,12 +49,12 @@
 				selected = '';
 			}}
 		>
-			<img
-				src="{WEBUI_BASE_URL}/static/favicon.png"
-				class="size-10 {selected === '' ? 'rounded-2xl' : 'rounded-full'}"
-				alt="logo"
-				draggable="false"
-			/>
+		<img
+			src="{WEBUI_BASE_URL}/static/HLX-white.png"
+			class="h-9 w-auto"
+			alt="Obsidian"
+			draggable="false"
+		/>
 		</button>
 	</div>
 

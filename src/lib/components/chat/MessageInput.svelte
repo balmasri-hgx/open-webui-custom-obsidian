@@ -90,6 +90,10 @@
 	import { goto } from '$app/navigation';
 	import InputModal from '../common/InputModal.svelte';
 	import Expand from '../icons/Expand.svelte';
+	import WebhookFormModal from './WebhookFormModal.svelte';
+	import WorkflowsMenu from './MessageInput/WorkflowsMenu.svelte';
+	import Bolt from '../icons/Bolt.svelte';
+	import { getWebhookConfig, getWebhookEnabledModels, type WebhookModel, type WebhookFormField } from '$lib/apis/webhooks';
 
 	const i18n = getContext('i18n');
 
@@ -128,6 +132,17 @@
 	let inputVariables = {};
 	let inputVariableValues = {};
 
+	// Webhook form modal state
+	let showWebhookFormModal = false;
+	let webhookModelId = '';
+	let webhookFormTitle = '';
+	let webhookFormDescription = '';
+	let webhookFormFields: WebhookFormField[] = [];
+
+	// Workflows button state
+	let hasWorkflows = false;
+	let workflowsLoading = false;
+
 	let showValvesModal = false;
 	let selectedValvesType = 'tool'; // 'tool' or 'function'
 	let selectedValvesItemId = null;
@@ -154,6 +169,58 @@
 		webSearchEnabled,
 		codeInterpreterEnabled
 	});
+
+	// Handler for webhook selection from command suggestions
+	const handleWebhookSelect = async (webhookModel: WebhookModel) => {
+		try {
+			const config = await getWebhookConfig(localStorage.token, webhookModel.id);
+			
+			if (!config.enabled) {
+				toast.error('This workflow is not enabled');
+				return;
+			}
+			
+			webhookModelId = webhookModel.id;
+			webhookFormTitle = config.form_title || webhookModel.name || 'Workflow Form';
+			webhookFormDescription = config.form_description || '';
+			webhookFormFields = config.form_fields || [];
+			showWebhookFormModal = true;
+		} catch (error) {
+			console.error('Failed to load webhook config:', error);
+			toast.error('Failed to load workflow form');
+		}
+	};
+
+	// Handler for workflow selection from WorkflowsMenu
+	const handleWorkflowMenuSelect = (data: { modelId: string; formTitle: string; formDescription: string; formFields: WebhookFormField[] }) => {
+		webhookModelId = data.modelId;
+		webhookFormTitle = data.formTitle;
+		webhookFormDescription = data.formDescription;
+		webhookFormFields = data.formFields;
+		showWebhookFormModal = true;
+	};
+
+	// Handler for webhook form success
+	const handleWebhookSuccess = (event: CustomEvent) => {
+		const response = event.detail;
+		
+		// Create a message showing the result
+		let resultMessage = response.message || 'Workflow executed successfully';
+		
+		// If there's a file download, add it to the message
+		if (response.file_url) {
+			const fileName = response.file_name || 'Download';
+			resultMessage += `\n\n📎 [${fileName}](${response.file_url})`;
+		}
+		
+		// Add the result as an assistant message (dispatch to parent)
+		dispatch('webhook-response', {
+			message: resultMessage,
+			data: response.data,
+			file_url: response.file_url,
+			file_name: response.file_name
+		});
+	};
 
 	const inputVariableHandler = async (text: string): Promise<string> => {
 		inputVariables = extractInputVariables(text);
@@ -895,6 +962,10 @@
 						} else {
 							onUpload(e);
 						}
+					},
+					onWebhookSelect: (data) => {
+						handleWebhookSelect(data);
+						document.getElementById('chat-input')?.focus();
 					}
 				})
 			},
@@ -956,6 +1027,15 @@
 		dropzoneElement?.addEventListener('dragleave', onDragLeave);
 
 		await tools.set(await getTools(localStorage.token));
+
+		// Check for available workflows
+		try {
+			const workflows = await getWebhookEnabledModels(localStorage.token);
+			hasWorkflows = workflows.length > 0;
+		} catch (e) {
+			console.error('Failed to check for workflows:', e);
+			hasWorkflows = false;
+		}
 	});
 
 	onDestroy(() => {
@@ -983,6 +1063,18 @@
 	bind:show={showInputVariablesModal}
 	variables={inputVariables}
 	onSave={inputVariablesModalCallback}
+/>
+
+<WebhookFormModal
+	bind:show={showWebhookFormModal}
+	modelId={webhookModelId}
+	formTitle={webhookFormTitle}
+	formDescription={webhookFormDescription}
+	formFields={webhookFormFields}
+	on:success={handleWebhookSuccess}
+	on:close={() => {
+		showWebhookFormModal = false;
+	}}
 />
 
 <ValvesModal
@@ -1114,13 +1206,13 @@
 							on:click={() => createMessagePair(prompt)}
 						/>
 
-						<div
-							id="message-input-container"
-							class="flex-1 flex flex-col relative w-full shadow-lg rounded-3xl border {$temporaryChatEnabled
-								? 'border-dashed border-gray-100 dark:border-gray-800 hover:border-gray-200 focus-within:border-gray-200 hover:dark:border-gray-700 focus-within:dark:border-gray-700'
-								: ' border-gray-100/30 dark:border-gray-850/30 hover:border-gray-200 focus-within:border-gray-100 hover:dark:border-gray-800 focus-within:dark:border-gray-800'}  transition px-1 bg-white/5 dark:bg-gray-500/5 backdrop-blur-sm dark:text-gray-100"
-							dir={$settings?.chatDirection ?? 'auto'}
-						>
+					<div
+						id="message-input-container"
+						class="obsidian-chat-input flex-1 flex flex-col relative w-full rounded-3xl transition px-1 dark:text-gray-100 {$temporaryChatEnabled
+							? 'border-dashed'
+							: ''}"
+						dir={$settings?.chatDirection ?? 'auto'}
+					>
 							{#if atSelectedModel !== undefined}
 								<div class="px-3 pt-3 text-left w-full flex flex-col z-10">
 									<div class="flex items-center justify-between w-full">
@@ -1539,6 +1631,24 @@
 												<Component className="size-4.5" strokeWidth="1.5" />
 											</div>
 										</IntegrationsMenu>
+									{/if}
+
+									{#if hasWorkflows}
+										<WorkflowsMenu
+											onWorkflowSelect={handleWorkflowMenuSelect}
+											onClose={async () => {
+												await tick();
+												const chatInput = document.getElementById('chat-input');
+												chatInput?.focus();
+											}}
+										>
+											<div
+												id="workflows-menu-button"
+												class="bg-transparent hover:bg-gray-100 text-gray-700 dark:text-white dark:hover:bg-gray-800 rounded-full size-8 flex justify-center items-center outline-hidden focus:outline-hidden"
+											>
+												<Bolt className="size-4.5" strokeWidth="1.5" />
+											</div>
+										</WorkflowsMenu>
 									{/if}
 
 									{#if selectedModelIds.length === 1 && $models.find((m) => m.id === selectedModelIds[0])?.has_user_valves}

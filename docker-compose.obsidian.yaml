@@ -1,0 +1,180 @@
+# =============================================================================
+# Obsidian Production Stack with n8n Integration
+# =============================================================================
+# Usage:
+#   docker compose -f docker-compose.obsidian.yaml up -d
+#
+# This stack includes:
+#   - Obsidian (Open WebUI fork) - AI Chat Interface
+#   - Ollama - Local LLM runtime
+#   - n8n - Workflow automation (optional, comment out if using external n8n)
+#   - PostgreSQL - Production database (optional, defaults to SQLite)
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Obsidian - AI Chat Interface
+  # ---------------------------------------------------------------------------
+  obsidian:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USE_CUDA=${USE_CUDA:-false}
+        - USE_OLLAMA=${USE_OLLAMA:-false}
+        - USE_SLIM=${USE_SLIM:-false}
+        - BUILD_HASH=${BUILD_HASH:-}
+    image: obsidian:${WEBUI_DOCKER_TAG:-latest}
+    container_name: obsidian
+    volumes:
+      - obsidian-data:/app/backend/data
+      # Mount static files for live customization (logos, CSS)
+      - ./static/static:/app/backend/static/static:ro
+      - ./static/assets/fonts:/app/backend/static/assets/fonts:ro
+    depends_on:
+      - ollama
+    ports:
+      - "${OPEN_WEBUI_PORT:-3000}:8080"
+    environment:
+      # Ollama connection
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
+      # Security
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-}
+      # OpenAI (optional)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_API_BASE_URL=${OPENAI_API_BASE_URL:-}
+      # Database (uncomment for PostgreSQL)
+      # - DATABASE_URL=${DATABASE_URL:-}
+      # Telemetry
+      - SCARF_NO_ANALYTICS=true
+      - DO_NOT_TRACK=true
+      - ANONYMIZED_TELEMETRY=false
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    networks:
+      - obsidian-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ---------------------------------------------------------------------------
+  # Ollama - Local LLM Runtime
+  # ---------------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:${OLLAMA_DOCKER_TAG:-latest}
+    container_name: ollama
+    volumes:
+      - ollama-data:/root/.ollama
+    ports:
+      - "11434:11434"
+    pull_policy: always
+    tty: true
+    restart: unless-stopped
+    networks:
+      - obsidian-network
+    # Uncomment for GPU support (NVIDIA)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # ---------------------------------------------------------------------------
+  # n8n - Workflow Automation
+  # ---------------------------------------------------------------------------
+  # Comment this section if using an external n8n instance
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    volumes:
+      - n8n-data:/home/node/.n8n
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    environment:
+      # Basic config
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      # Webhook URL (update for production domain)
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678}
+      # Security
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-changeme}
+      # Execution settings
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=168
+    restart: unless-stopped
+    networks:
+      - obsidian-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL - Production Database (Optional)
+  # ---------------------------------------------------------------------------
+  # Uncomment for production deployments
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: obsidian-postgres
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   environment:
+  #     - POSTGRES_USER=obsidian
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+  #     - POSTGRES_DB=obsidian
+  #   restart: unless-stopped
+  #   networks:
+  #     - obsidian-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U obsidian"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  # ---------------------------------------------------------------------------
+  # Redis - Session/Cache Store (Optional)
+  # ---------------------------------------------------------------------------
+  # Uncomment for high-availability deployments
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: obsidian-redis
+  #   volumes:
+  #     - redis-data:/data
+  #   restart: unless-stopped
+  #   networks:
+  #     - obsidian-network
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  obsidian-data:
+    name: obsidian-data
+  ollama-data:
+    name: ollama-data
+  n8n-data:
+    name: n8n-data
+  # postgres-data:
+  #   name: obsidian-postgres-data
+  # redis-data:
+  #   name: obsidian-redis-data
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  obsidian-network:
+    name: obsidian-network
+    driver: bridge
+

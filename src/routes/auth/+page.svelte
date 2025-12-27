@@ -136,20 +136,11 @@
 
 		if (logo) {
 			const isDarkMode = document.documentElement.classList.contains('dark');
-
-			if (isDarkMode) {
-				const darkImage = new Image();
-				darkImage.src = `${WEBUI_BASE_URL}/static/favicon-dark.png`;
-
-				darkImage.onload = () => {
-					logo.src = `${WEBUI_BASE_URL}/static/favicon-dark.png`;
-					logo.style.filter = ''; // Ensure no inversion is applied if favicon-dark.png exists
-				};
-
-				darkImage.onerror = () => {
-					logo.style.filter = 'invert(1)'; // Invert image if favicon-dark.png is missing
-				};
-			}
+			// Use HLX logos - white for dark mode, black for light mode
+			logo.src = isDarkMode 
+				? `${WEBUI_BASE_URL}/static/HLX-white.png`
+				: `${WEBUI_BASE_URL}/static/HLX-black.png`;
+			logo.style.filter = '';
 		}
 	}
 
@@ -197,13 +188,13 @@
 />
 
 <div class="w-full h-screen max-h-[100dvh] text-white relative" id="auth-page">
-	<div class="w-full h-full absolute top-0 left-0 bg-white dark:bg-black"></div>
+	<div class="w-full h-full absolute top-0 left-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950"></div>
 
 	<div class="w-full absolute top-0 left-0 right-0 h-8 drag-region" />
 
 	{#if loaded}
 		<div
-			class="fixed bg-transparent min-h-screen w-full flex justify-center font-primary z-50 text-black dark:text-white"
+			class="fixed bg-transparent min-h-screen w-full flex justify-center z-50 text-black dark:text-white"
 			id="auth-container"
 		>
 			<div class="w-full px-10 min-h-screen flex flex-col text-center">
@@ -226,13 +217,20 @@
 						<div class=" sm:max-w-md my-auto pb-10 w-full dark:text-gray-100">
 							{#if $config?.metadata?.auth_logo_position === 'center'}
 								<div class="flex justify-center mb-6">
-									<img
-										id="logo"
-										crossorigin="anonymous"
-										src="{WEBUI_BASE_URL}/static/favicon.png"
-										class="size-24 rounded-full"
-										alt=""
-									/>
+							<img
+								id="logo"
+								crossorigin="anonymous"
+								src="{WEBUI_BASE_URL}/static/HLX-black.png"
+								class="h-20 w-auto dark:hidden"
+								alt="Obsidian"
+							/>
+							<img
+								id="logo-dark"
+								crossorigin="anonymous"
+								src="{WEBUI_BASE_URL}/static/HLX-white.png"
+								class="h-20 w-auto hidden dark:block"
+								alt="Obsidian"
+							/>
 								</div>
 							{/if}
 							<form
@@ -244,15 +242,7 @@
 							>
 								<div class="mb-1">
 									<div class=" text-2xl font-medium">
-										{#if $config?.onboarding ?? false}
-											{$i18n.t(`Get started with {{WEBUI_NAME}}`, { WEBUI_NAME: $WEBUI_NAME })}
-										{:else if mode === 'ldap'}
-											{$i18n.t(`Sign in to {{WEBUI_NAME}} with LDAP`, { WEBUI_NAME: $WEBUI_NAME })}
-										{:else if mode === 'signin'}
-											{$i18n.t(`Sign in to {{WEBUI_NAME}}`, { WEBUI_NAME: $WEBUI_NAME })}
-										{:else}
-											{$i18n.t(`Sign up to {{WEBUI_NAME}}`, { WEBUI_NAME: $WEBUI_NAME })}
-										{/if}
+										<span class="auth-title-brand">{$WEBUI_NAME}</span>
 									</div>
 
 									{#if $config?.onboarding ?? false}
@@ -268,113 +258,118 @@
 								{#if $config?.features.enable_login_form || $config?.features.enable_ldap || form}
 									<div class="flex flex-col mt-4">
 										{#if mode === 'signup'}
-											<div class="mb-2">
-												<label for="name" class="text-sm font-medium text-left mb-1 block"
+											<div class="futuristic-input-group">
+												<label for="name" class="futuristic-label"
 													>{$i18n.t('Name')}</label
 												>
 												<input
 													bind:value={name}
 													type="text"
 													id="name"
-													class="my-0.5 w-full text-sm outline-hidden bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-600"
+													class="futuristic-input"
 													autocomplete="name"
 													placeholder={$i18n.t('Enter Your Full Name')}
 													required
 												/>
+												<div class="futuristic-input-line"></div>
 											</div>
 										{/if}
 
-										{#if mode === 'ldap'}
-											<div class="mb-2">
-												<label for="username" class="text-sm font-medium text-left mb-1 block"
-													>{$i18n.t('Username')}</label
-												>
-												<input
-													bind:value={ldapUsername}
-													type="text"
-													class="my-0.5 w-full text-sm outline-hidden bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-600"
-													autocomplete="username"
-													name="username"
-													id="username"
-													placeholder={$i18n.t('Enter Your Username')}
-													required
-												/>
-											</div>
-										{:else}
-											<div class="mb-2">
-												<label for="email" class="text-sm font-medium text-left mb-1 block"
-													>{$i18n.t('Email')}</label
-												>
-												<input
-													bind:value={email}
-													type="email"
-													id="email"
-													class="my-0.5 w-full text-sm outline-hidden bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-600"
-													autocomplete="email"
-													name="email"
-													placeholder={$i18n.t('Enter Your Email')}
-													required
-												/>
-											</div>
-										{/if}
-
-										<div>
-											<label for="password" class="text-sm font-medium text-left mb-1 block"
-												>{$i18n.t('Password')}</label
+									{#if mode === 'ldap'}
+										<div class="futuristic-input-group">
+											<label for="username" class="futuristic-label"
+												>{$i18n.t('Username')}</label
 											>
-											<SensitiveInput
-												bind:value={password}
-												type="password"
-												id="password"
-												class="my-0.5 w-full text-sm outline-hidden bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-600"
-												placeholder={$i18n.t('Enter Your Password')}
-												autocomplete={mode === 'signup' ? 'new-password' : 'current-password'}
-												name="password"
+											<input
+												bind:value={ldapUsername}
+												type="text"
+												class="futuristic-input"
+												autocomplete="username"
+												name="username"
+												id="username"
+												placeholder={$i18n.t('Enter Your Username')}
 												required
 											/>
+											<div class="futuristic-input-line"></div>
 										</div>
+									{:else}
+										<div class="futuristic-input-group">
+											<label for="email" class="futuristic-label"
+												>{$i18n.t('Email')}</label
+											>
+											<input
+												bind:value={email}
+												type="email"
+												id="email"
+												class="futuristic-input"
+												autocomplete="email"
+												name="email"
+												placeholder={$i18n.t('Enter Your Email')}
+												required
+											/>
+											<div class="futuristic-input-line"></div>
+										</div>
+									{/if}
 
-										{#if mode === 'signup' && $config?.features?.enable_signup_password_confirmation}
-											<div class="mt-2">
-												<label
-													for="confirm-password"
-													class="text-sm font-medium text-left mb-1 block"
-													>{$i18n.t('Confirm Password')}</label
-												>
-												<SensitiveInput
-													bind:value={confirmPassword}
-													type="password"
-													id="confirm-password"
-													class="my-0.5 w-full text-sm outline-hidden bg-transparent"
-													placeholder={$i18n.t('Confirm Your Password')}
-													autocomplete="new-password"
-													name="confirm-password"
-													required
-												/>
-											</div>
-										{/if}
+									<div class="futuristic-input-group">
+										<label for="password" class="futuristic-label"
+											>{$i18n.t('Password')}</label
+										>
+										<SensitiveInput
+											bind:value={password}
+											type="password"
+											id="password"
+											inputClassName="futuristic-input w-full text-sm bg-transparent"
+											outerClassName="flex flex-1 bg-transparent items-center"
+											showButtonClassName="password-toggle pl-2 transition bg-transparent text-gray-400 hover:text-purple-300"
+											placeholder={$i18n.t('Enter Your Password')}
+											required
+										/>
+										<div class="futuristic-input-line"></div>
+									</div>
+
+									{#if mode === 'signup' && $config?.features?.enable_signup_password_confirmation}
+										<div class="futuristic-input-group mt-2">
+											<label
+												for="confirm-password"
+												class="futuristic-label"
+												>{$i18n.t('Confirm Password')}</label
+											>
+											<SensitiveInput
+												bind:value={confirmPassword}
+												type="password"
+												id="confirm-password"
+												inputClassName="futuristic-input w-full text-sm bg-transparent"
+												outerClassName="flex flex-1 bg-transparent items-center"
+												showButtonClassName="password-toggle pl-2 transition bg-transparent text-gray-400 hover:text-purple-300"
+												placeholder={$i18n.t('Confirm Your Password')}
+												required
+											/>
+											<div class="futuristic-input-line"></div>
+										</div>
+									{/if}
 									</div>
 								{/if}
-								<div class="mt-5">
-									{#if $config?.features.enable_login_form || $config?.features.enable_ldap || form}
-										{#if mode === 'ldap'}
-											<button
-												class="bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
-												type="submit"
-											>
-												{$i18n.t('Authenticate')}
-											</button>
-										{:else}
-											<button
-												class="bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5"
-												type="submit"
-											>
-												{mode === 'signin'
-													? $i18n.t('Sign in')
-													: ($config?.onboarding ?? false)
-														? $i18n.t('Create Admin Account')
-														: $i18n.t('Create Account')}
-											</button>
+							<div class="mt-6">
+								{#if $config?.features.enable_login_form || $config?.features.enable_ldap || form}
+									{#if mode === 'ldap'}
+										<button
+											class="futuristic-button w-full rounded-full"
+											type="submit"
+										>
+											{$i18n.t('Authenticate')}
+										</button>
+									{:else}
+										<button
+											class="futuristic-button w-full rounded-full"
+											type="submit"
+										>
+											{mode === 'signin'
+												? $i18n.t('Sign in')
+												: ($config?.onboarding ?? false)
+													? $i18n.t('Create Admin Account')
+													: $i18n.t('Create Account')}
+										</button>
 
 											{#if $config?.features.enable_signup && !($config?.onboarding ?? false)}
 												<div class=" mt-4 text-sm text-center">
@@ -568,20 +563,20 @@
 			</div>
 		</div>
 
-		{#if !$config?.metadata?.auth_logo_position}
-			<div class="fixed m-10 z-50">
-				<div class="flex space-x-2">
-					<div class=" self-center">
-						<img
-							id="logo"
-							crossorigin="anonymous"
-							src="{WEBUI_BASE_URL}/static/favicon.png"
-							class=" w-6 rounded-full"
-							alt=""
-						/>
-					</div>
+	{#if !$config?.metadata?.auth_logo_position}
+		<div class="fixed m-10 z-50">
+			<div class="flex space-x-2">
+				<div class=" self-center">
+					<img
+						id="logo"
+						crossorigin="anonymous"
+						src="{WEBUI_BASE_URL}/static/HLX-white.png"
+						class="h-8 w-auto"
+						alt="Obsidian"
+					/>
 				</div>
 			</div>
-		{/if}
+		</div>
+	{/if}
 	{/if}
 </div>

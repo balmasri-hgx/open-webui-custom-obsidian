@@ -34,9 +34,65 @@ class ModelParams(BaseModel):
     pass
 
 
+# FormField defines a single input field for webhook forms
+class WebhookFormField(BaseModel):
+    name: str
+    """Field identifier used as the key in the payload."""
+    
+    label: str
+    """Human-readable label for the field."""
+    
+    type: str = "text"
+    """Field type: text, number, date, select, textarea, file."""
+    
+    accept: Optional[str] = None
+    """For file fields: accepted MIME types (e.g., '.xlsx,.csv,application/pdf')."""
+    
+    multiple: bool = False
+    """For file fields: whether to allow multiple file selection."""
+    
+    required: bool = False
+    """Whether the field is required."""
+    
+    placeholder: Optional[str] = None
+    """Placeholder text for the input."""
+    
+    options: Optional[list[str]] = None
+    """Options for select fields."""
+    
+    default: Optional[str] = None
+    """Default value for the field."""
+
+
+# WebhookConfig defines the n8n/webhook integration for a model
+class WebhookConfig(BaseModel):
+    enabled: bool = False
+    """Whether webhook integration is enabled for this model."""
+    
+    workflow_only: bool = False
+    """If true, this model only triggers workflows and doesn't send to LLM."""
+    
+    webhook_url: Optional[str] = None
+    """The n8n or external webhook URL to call."""
+    
+    slash_command: Optional[str] = None
+    """The slash command that triggers the form (e.g., '/report')."""
+    
+    form_title: Optional[str] = None
+    """Title displayed on the form modal."""
+    
+    form_description: Optional[str] = None
+    """Description displayed on the form modal."""
+    
+    form_fields: Optional[list[WebhookFormField]] = None
+    """List of form fields to collect user input."""
+    
+    model_config = ConfigDict(extra="allow")
+
+
 # ModelMeta is a model for the data stored in the meta field of the Model table
 class ModelMeta(BaseModel):
-    profile_image_url: Optional[str] = "/static/favicon.png"
+    profile_image_url: Optional[str] = "/static/HLX-white.png"
 
     description: Optional[str] = None
     """
@@ -44,6 +100,11 @@ class ModelMeta(BaseModel):
     """
 
     capabilities: Optional[dict] = None
+    
+    webhook: Optional[WebhookConfig] = None
+    """
+        Configuration for n8n/webhook integration.
+    """
 
     model_config = ConfigDict(extra="allow")
 

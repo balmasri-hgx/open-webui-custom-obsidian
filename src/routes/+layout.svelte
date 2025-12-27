@@ -356,9 +356,9 @@
 
 					if ($isLastActiveTab) {
 						if ($settings?.notificationEnabled ?? false) {
-							new Notification(`${title} • Open WebUI`, {
+							new Notification(`${title} • Obsidian`, {
 								body: content,
-								icon: `${WEBUI_BASE_URL}/static/favicon.png`
+								icon: `${WEBUI_BASE_URL}/static/HLX-black.png`
 							});
 						}
 					}
@@ -798,7 +798,8 @@
 
 			await loadingProgress.set(100);
 
-			document.getElementById('splash-screen')?.remove();
+			// Signal app is ready - splash controller in app.html handles timing
+			window.dispatchEvent(new CustomEvent('app-ready'));
 
 			const audio = new Audio(`/audio/greeting.mp3`);
 			const playAudio = () => {
@@ -810,7 +811,8 @@
 
 			loaded = true;
 		} else {
-			document.getElementById('splash-screen')?.remove();
+			// Signal app is ready - splash controller in app.html handles timing
+			window.dispatchEvent(new CustomEvent('app-ready'));
 			loaded = true;
 		}
 
@@ -822,7 +824,7 @@
 
 <svelte:head>
 	<title>{$WEBUI_NAME}</title>
-	<link crossorigin="anonymous" rel="icon" href="{WEBUI_BASE_URL}/static/favicon.png" />
+	<link crossorigin="anonymous" rel="icon" href="{WEBUI_BASE_URL}/static/HLX-black.png" />
 
 	<meta name="apple-mobile-web-app-title" content={$WEBUI_NAME} />
 	<meta name="description" content={$WEBUI_NAME} />

@@ -30,6 +30,14 @@
 	font-display: swap;
 }
 
+/* Anurati Futuristic Typography - Place Anurati.otf or Anurati.ttf in /assets/fonts/ */
+@font-face {
+	font-family: 'Anurati';
+	src: url('/assets/fonts/Anurati.otf') format('opentype'),
+		 url('/assets/fonts/Anurati.ttf') format('truetype');
+	font-display: swap;
+}
+
 /* --app-text-scale is updated via the UI Scale slider (Interface.svelte) */
 :root {
 	--app-text-scale: 1;
@@ -118,8 +126,16 @@ textarea::placeholder {
 	@apply underline;
 }
 
+/* Default UI font - clean and readable */
 .font-primary {
-	font-family: 'Archivo', 'Vazirmatn', sans-serif;
+	font-family: 'Archivo', 'Inter', 'Vazirmatn', sans-serif;
+}
+
+/* Brand font - Anurati for logo and major headings ONLY */
+.font-brand {
+	font-family: 'Anurati', 'Archivo', sans-serif;
+	text-transform: uppercase;
+	letter-spacing: 0.15em;
 }
 
 .drag-region {
@@ -685,15 +701,7 @@ input[type='number'] {
 	white-space: nowrap;
 }
 
-body {
-	background: #fff;
-	color: #000;
-}
-
-.dark body {
-	background: #171717;
-	color: #eee;
-}
+/* Body styles are defined in custom.css for Obsidian theme */
 
 /* Position the handle relative to each LI */
 .pm-li--with-handle {

@@ -8,19 +8,34 @@ export default {
 	theme: {
 		extend: {
 			colors: {
+				/* Clean neutral grays for UI - with subtle obsidian undertone */
 				gray: {
-					50: 'var(--color-gray-50, #f9f9f9)',
-					100: 'var(--color-gray-100, #ececec)',
-					200: 'var(--color-gray-200, #e3e3e3)',
-					300: 'var(--color-gray-300, #cdcdcd)',
-					400: 'var(--color-gray-400, #b4b4b4)',
-					500: 'var(--color-gray-500, #9b9b9b)',
-					600: 'var(--color-gray-600, #676767)',
-					700: 'var(--color-gray-700, #4e4e4e)',
-					800: 'var(--color-gray-800, #333)',
-					850: 'var(--color-gray-850, #262626)',
-					900: 'var(--color-gray-900, #171717)',
-					950: 'var(--color-gray-950, #0d0d0d)'
+					50: '#f8f7fa',
+					100: '#f0eef2',
+					200: '#e4e1e8',
+					300: '#cdc8d4',
+					400: '#a9a1b4',
+					500: '#857b94',
+					600: '#6b6079',
+					700: '#564c65',
+					800: '#3d354b',   /* Obsidian tone starts here */
+					850: '#2e293a',
+					900: '#252131',
+					950: '#1a1721'
+				},
+				/* Obsidian accent palette */
+				obsidian: {
+					50: '#f0edf3',
+					100: '#d8d2de',
+					200: '#b8aec4',
+					300: '#9889a8',
+					400: '#7d6c91',
+					500: '#62507a',
+					600: '#5b4965',
+					700: '#4a3d55',
+					800: '#3d354b',
+					900: '#2e293a',
+					950: '#1a1721'
 				}
 			},
 			typography: {

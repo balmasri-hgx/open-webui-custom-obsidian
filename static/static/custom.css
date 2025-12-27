@@ -1,0 +1,846 @@
+/* ============================================
+   OBSIDIAN THEME - Futuristic Clean Design
+   ============================================ */
+
+/* ----------------------
+   Anurati Font
+   ---------------------- */
+/* Font is preloaded and declared in app.html for best performance */
+
+/* ----------------------
+   CSS Variables
+   ---------------------- */
+:root {
+	/* Accent Colors - Obsidian Palette with Gradients */
+	--accent-primary: #7d6c91;
+	--accent-secondary: #5b4965;
+	--accent-tertiary: #9b7db8;
+	--accent-glow: rgba(155, 125, 184, 0.35);
+	--accent-bright: #b99cd1;
+	
+	/* Gradient Definitions */
+	--gradient-obsidian: linear-gradient(135deg, #71627a 0%, #5b4965 50%, #3d354b 100%);
+	--gradient-accent: linear-gradient(135deg, #9b7db8 0%, #7d6c91 50%, #5b4965 100%);
+	--gradient-subtle: linear-gradient(135deg, rgba(155, 125, 184, 0.15) 0%, rgba(91, 73, 101, 0.1) 100%);
+	--gradient-glow: linear-gradient(135deg, rgba(185, 156, 209, 0.4) 0%, rgba(125, 108, 145, 0.2) 100%);
+	
+	/* Status Colors */
+	--success: #10b981;
+	--warning: #f59e0b;
+	--error: #ef4444;
+}
+
+/* ----------------------
+   Base Styles
+   ---------------------- */
+body {
+	font-family: 'Archivo', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Light mode */
+body {
+	background: linear-gradient(180deg, #f8f7fa 0%, #f0eef4 100%);
+	background-attachment: fixed;
+}
+
+/* Dark mode - sophisticated gradient background */
+.dark body {
+	background: 
+		radial-gradient(ellipse at 20% 0%, rgba(113, 98, 122, 0.15) 0%, transparent 50%),
+		radial-gradient(ellipse at 80% 100%, rgba(91, 73, 101, 0.1) 0%, transparent 50%),
+		linear-gradient(165deg, #1a1721 0%, #201c29 40%, #1e1a26 70%, #1a1721 100%);
+	background-attachment: fixed;
+}
+
+/* ----------------------
+   Brand Typography 
+   Use Anurati ONLY for logo/brand
+   ---------------------- */
+.font-brand {
+	font-family: 'Anurati', 'Archivo', sans-serif !important;
+	text-transform: uppercase;
+	letter-spacing: 0.2em;
+}
+
+/* Sidebar brand name with gradient */
+#sidebar-webui-name {
+	font-family: 'Anurati', 'Archivo', sans-serif !important;
+	text-transform: uppercase;
+	letter-spacing: 0.25em;
+	font-size: 0.85rem;
+	background: linear-gradient(135deg, #d4c8dd 0%, #b8aec4 50%, #9889a8 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+.dark #sidebar-webui-name {
+	background: linear-gradient(135deg, #e8e0f0 0%, #c9bdd6 40%, #a898b8 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	filter: drop-shadow(0 0 20px rgba(185, 156, 209, 0.3));
+}
+
+/* Ensure all other text uses clean font */
+h1, h2, h3, h4, h5, h6,
+label, input, textarea, select, button,
+p, span, div {
+	font-family: 'Archivo', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+	letter-spacing: normal;
+	text-transform: none;
+}
+
+/* ----------------------
+   Greeting Text Gradient
+   ---------------------- */
+.dark .text-3xl.text-gray-800,
+.dark .text-3xl.dark\:text-gray-100 {
+	background: linear-gradient(135deg, #f5f0fa 0%, #d4c8e0 60%, #b8aec4 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+/* ----------------------
+   Dark Mode UI Elements
+   ---------------------- */
+
+/* Sidebar with subtle gradient */
+.dark #sidebar {
+	background: linear-gradient(180deg, rgba(26, 23, 33, 0.95) 0%, rgba(30, 26, 38, 0.98) 100%);
+	border-right: 1px solid rgba(155, 125, 184, 0.08);
+}
+
+/* Sidebar hover states */
+.dark #sidebar a:hover,
+.dark #sidebar button:hover {
+	background: var(--gradient-subtle);
+}
+
+/* Cards and containers with gradient border */
+.dark .bg-white {
+	background: linear-gradient(135deg, rgba(37, 33, 49, 0.95) 0%, rgba(42, 37, 55, 0.9) 100%) !important;
+	border: 1px solid rgba(155, 125, 184, 0.08);
+}
+
+.dark .bg-gray-50 {
+	background: linear-gradient(135deg, rgba(42, 37, 55, 0.8) 0%, rgba(37, 33, 49, 0.9) 100%) !important;
+}
+
+/* Input fields - clean dark style */
+.dark input,
+.dark textarea,
+.dark select {
+	background: rgba(30, 26, 38, 0.8) !important;
+	border: 1px solid rgba(100, 90, 115, 0.25) !important;
+	color: #f0eef2 !important;
+	border-radius: 8px;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+	color: #6b6080 !important;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+	border-color: rgba(155, 125, 184, 0.5) !important;
+	background: rgba(30, 26, 38, 0.9) !important;
+	box-shadow: 0 0 0 2px rgba(155, 125, 184, 0.15) !important;
+	outline: none !important;
+}
+
+/* Remove autofill highlight */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus {
+	-webkit-box-shadow: 0 0 0 1000px rgba(30, 26, 38, 0.95) inset !important;
+	-webkit-text-fill-color: #f0eef2 !important;
+	border: 1px solid rgba(100, 90, 115, 0.25) !important;
+}
+
+/* Primary Buttons with gradient */
+.dark button[type="submit"],
+.dark .bg-black {
+	background: var(--gradient-obsidian) !important;
+	border: 1px solid rgba(155, 125, 184, 0.2) !important;
+	color: #f5f0fa !important;
+	position: relative;
+	overflow: hidden;
+}
+
+.dark button[type="submit"]::before,
+.dark .bg-black::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+	transition: left 0.5s ease;
+}
+
+.dark button[type="submit"]:hover,
+.dark .bg-black:hover {
+	background: linear-gradient(135deg, #7d6c91 0%, #6b5a77 50%, #5b4965 100%) !important;
+	box-shadow: 0 4px 20px rgba(155, 125, 184, 0.3), 0 0 40px rgba(155, 125, 184, 0.15) !important;
+	transform: translateY(-1px);
+}
+
+.dark button[type="submit"]:hover::before,
+.dark .bg-black:hover::before {
+	left: 100%;
+}
+
+/* ----------------------
+   Accent Elements
+   ---------------------- */
+
+/* Selected/Active states */
+.dark .bg-gray-100,
+.dark .selected-command-option-button {
+	background: var(--gradient-subtle) !important;
+	border-left: 2px solid var(--accent-tertiary);
+}
+
+/* Tags and badges */
+.dark .rounded-full.bg-gray-100,
+.dark .badge {
+	background: var(--gradient-subtle) !important;
+	color: var(--accent-bright);
+}
+
+/* ----------------------
+   Auth Page Specific
+   ---------------------- */
+#auth-page .bg-white,
+#auth-page .dark\:bg-black {
+	background: transparent !important;
+}
+
+/* Auth form container */
+.dark #auth-page {
+	background: 
+		radial-gradient(ellipse at 30% 20%, rgba(113, 98, 122, 0.2) 0%, transparent 50%),
+		radial-gradient(ellipse at 70% 80%, rgba(91, 73, 101, 0.15) 0%, transparent 50%);
+}
+
+/* ----------------------
+   Futuristic Login Styles
+   ---------------------- */
+
+/* Auth title with Anurati font for "Obsidian" */
+.auth-title-brand {
+	font-family: 'Anurati', 'Arial Black', sans-serif !important;
+	letter-spacing: 0.12em !important;
+	text-transform: uppercase !important;
+}
+
+/* Dark mode - gradient text */
+html.dark .auth-title-brand {
+	background: linear-gradient(135deg, #ffffff 0%, #e0d6eb 40%, #c9bdd6 100%) !important;
+	-webkit-background-clip: text !important;
+	-webkit-text-fill-color: transparent !important;
+	background-clip: text !important;
+	filter: drop-shadow(0 0 25px rgba(185, 156, 209, 0.4));
+}
+
+/* Light mode */
+html.light .auth-title-brand {
+	background: linear-gradient(135deg, #3d354b 0%, #5b4965 50%, #71627a 100%) !important;
+	-webkit-background-clip: text !important;
+	-webkit-text-fill-color: transparent !important;
+	background-clip: text !important;
+	filter: drop-shadow(0 0 10px rgba(91, 73, 101, 0.2));
+}
+
+/* Futuristic input container */
+.futuristic-input-group {
+	position: relative;
+	margin-bottom: 1.25rem;
+}
+
+/* Futuristic input - clean line style */
+.futuristic-input,
+input.futuristic-input,
+#auth-page .futuristic-input {
+	width: 100% !important;
+	background: transparent !important;
+	border: none !important;
+	border-bottom: 1px solid rgba(155, 125, 184, 0.25) !important;
+	border-radius: 0 !important;
+	padding: 0.625rem 0 !important;
+	padding-right: 2rem !important;
+	font-family: 'Inter', 'Segoe UI', sans-serif !important;
+	font-size: 0.95rem !important;
+	outline: none !important;
+	box-shadow: none !important;
+	transition: border-color 0.3s ease !important;
+}
+
+/* Dark mode input text */
+html.dark .futuristic-input,
+html.dark input.futuristic-input {
+	color: #e8e0f0 !important;
+	caret-color: #b99cd1 !important;
+}
+
+/* Light mode input text */
+html.light .futuristic-input,
+html.light input.futuristic-input {
+	color: #3d354b !important;
+	border-bottom-color: rgba(91, 73, 101, 0.25) !important;
+	caret-color: #5b4965 !important;
+}
+
+/* Placeholder styling */
+.futuristic-input::placeholder {
+	color: rgba(155, 125, 184, 0.35) !important;
+	font-size: 0.875rem !important;
+	font-style: italic !important;
+}
+
+html.light .futuristic-input::placeholder {
+	color: rgba(91, 73, 101, 0.4) !important;
+}
+
+/* Fix browser autofill styling - dark mode */
+html.dark input:-webkit-autofill,
+html.dark input:-webkit-autofill:hover,
+html.dark input:-webkit-autofill:focus,
+html.dark input:-webkit-autofill:active,
+html.dark .futuristic-input:-webkit-autofill,
+html.dark .futuristic-input:-webkit-autofill:hover,
+html.dark .futuristic-input:-webkit-autofill:focus,
+html.dark .futuristic-input:-webkit-autofill:active {
+	-webkit-box-shadow: 0 0 0 1000px rgba(30, 26, 40, 1) inset !important;
+	-webkit-text-fill-color: #e8e0f0 !important;
+	box-shadow: 0 0 0 1000px rgba(30, 26, 40, 1) inset !important;
+	background-color: transparent !important;
+	border-color: rgba(155, 125, 184, 0.3) !important;
+	caret-color: #b99cd1 !important;
+	transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Fix browser autofill styling - light mode */
+html.light input:-webkit-autofill,
+html.light input:-webkit-autofill:hover,
+html.light input:-webkit-autofill:focus,
+html.light input:-webkit-autofill:active {
+	-webkit-box-shadow: 0 0 0 1000px #f5f3f7 inset !important;
+	-webkit-text-fill-color: #3d354b !important;
+	box-shadow: 0 0 0 1000px #f5f3f7 inset !important;
+	background-color: transparent !important;
+	transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Focus state - animated line */
+.futuristic-input-line {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 0;
+	height: 2px;
+	background: linear-gradient(90deg, #9b7db8, #b99cd1, #9b7db8);
+	transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.futuristic-input-group:focus-within .futuristic-input-line {
+	width: 100%;
+}
+
+/* Focus glow */
+.futuristic-input:focus {
+	border-bottom-color: rgba(155, 125, 184, 0.4) !important;
+}
+
+/* Label styling */
+.futuristic-label {
+	display: block !important;
+	font-family: 'Inter', 'Segoe UI', sans-serif !important;
+	font-size: 0.65rem !important;
+	font-weight: 600 !important;
+	letter-spacing: 0.2em !important;
+	text-transform: uppercase !important;
+	margin-bottom: 0.375rem !important;
+	transition: color 0.3s ease !important;
+}
+
+html.dark .futuristic-label {
+	color: rgba(185, 156, 209, 0.7) !important;
+}
+
+html.light .futuristic-label {
+	color: rgba(91, 73, 101, 0.7) !important;
+}
+
+.futuristic-input-group:focus-within .futuristic-label {
+	color: #b99cd1 !important;
+}
+
+html.light .futuristic-input-group:focus-within .futuristic-label {
+	color: #5b4965 !important;
+}
+
+/* Futuristic button */
+.futuristic-button {
+	background: linear-gradient(135deg, rgba(113, 98, 122, 0.25) 0%, rgba(91, 73, 101, 0.35) 100%) !important;
+	border: 1px solid rgba(155, 125, 184, 0.25) !important;
+	color: #e8e0f0 !important;
+	font-family: 'Inter', 'Segoe UI', sans-serif !important;
+	font-weight: 500 !important;
+	letter-spacing: 0.15em !important;
+	text-transform: uppercase !important;
+	font-size: 0.75rem !important;
+	padding: 0.875rem 2rem !important;
+	position: relative !important;
+	overflow: hidden !important;
+	transition: all 0.3s ease !important;
+	cursor: pointer !important;
+}
+
+.futuristic-button::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(185, 156, 209, 0.15), transparent);
+	transition: left 0.5s ease;
+}
+
+.futuristic-button:hover {
+	background: linear-gradient(135deg, rgba(125, 108, 145, 0.35) 0%, rgba(113, 98, 122, 0.45) 100%) !important;
+	border-color: rgba(185, 156, 209, 0.4) !important;
+	box-shadow: 0 0 30px rgba(155, 125, 184, 0.2) !important;
+	transform: translateY(-1px);
+}
+
+.futuristic-button:hover::before {
+	left: 100%;
+}
+
+html.light .futuristic-button {
+	background: linear-gradient(135deg, rgba(91, 73, 101, 0.08) 0%, rgba(113, 98, 122, 0.12) 100%) !important;
+	border: 1px solid rgba(91, 73, 101, 0.25) !important;
+	color: #5b4965 !important;
+}
+
+html.light .futuristic-button:hover {
+	background: linear-gradient(135deg, rgba(91, 73, 101, 0.15) 0%, rgba(113, 98, 122, 0.2) 100%) !important;
+	border-color: rgba(91, 73, 101, 0.4) !important;
+}
+
+/* Password toggle styling */
+.password-toggle {
+	color: rgba(155, 125, 184, 0.4) !important;
+	transition: color 0.3s ease !important;
+	background: transparent !important;
+	border: none !important;
+	cursor: pointer !important;
+}
+
+.password-toggle:hover {
+	color: #b99cd1 !important;
+}
+
+html.light .password-toggle {
+	color: rgba(91, 73, 101, 0.4) !important;
+}
+
+html.light .password-toggle:hover {
+	color: #5b4965 !important;
+}
+
+/* ----------------------
+   Scrollbars with gradient
+   ---------------------- */
+.dark ::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+.dark ::-webkit-scrollbar-track {
+	background: rgba(26, 23, 33, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+	background: linear-gradient(180deg, rgba(155, 125, 184, 0.4) 0%, rgba(113, 98, 122, 0.3) 100%);
+	border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+	background: linear-gradient(180deg, rgba(185, 156, 209, 0.5) 0%, rgba(155, 125, 184, 0.4) 100%);
+}
+
+/* ----------------------
+   Code Blocks
+   ---------------------- */
+.dark pre,
+.dark .hljs {
+	background: linear-gradient(135deg, rgba(26, 23, 33, 0.95) 0%, rgba(30, 26, 38, 0.9) 100%) !important;
+	border: 1px solid rgba(155, 125, 184, 0.1);
+	box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dark .codespan {
+	background: linear-gradient(135deg, rgba(155, 125, 184, 0.2) 0%, rgba(113, 98, 122, 0.15) 100%) !important;
+	color: #c9bdd6 !important;
+	border-radius: 4px;
+	padding: 2px 6px;
+}
+
+/* ----------------------
+   Selection
+   ---------------------- */
+::selection {
+	background: linear-gradient(135deg, rgba(155, 125, 184, 0.5) 0%, rgba(185, 156, 209, 0.4) 100%);
+	color: white;
+}
+
+/* ----------------------
+   Focus States
+   ---------------------- */
+*:focus-visible {
+	outline: 2px solid var(--accent-tertiary);
+	outline-offset: 2px;
+}
+
+/* ----------------------
+   Links
+   ---------------------- */
+.dark a {
+	color: #c9bdd6;
+	transition: all 0.2s ease;
+}
+
+.dark a:hover {
+	color: #e8e0f0;
+	text-shadow: 0 0 10px rgba(185, 156, 209, 0.3);
+}
+
+/* ----------------------
+   Tooltips
+   ---------------------- */
+.dark .tippy-box[data-theme~='dark'] {
+	background: linear-gradient(135deg, rgba(26, 23, 33, 0.98) 0%, rgba(30, 26, 38, 0.95) 100%);
+	border: 1px solid rgba(155, 125, 184, 0.15);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ----------------------
+   Modals
+   ---------------------- */
+.dark [role="dialog"] > div,
+.dark .modal-content {
+	background: linear-gradient(135deg, rgba(37, 33, 49, 0.98) 0%, rgba(42, 37, 55, 0.95) 100%) !important;
+	backdrop-filter: blur(16px);
+	border: 1px solid rgba(155, 125, 184, 0.12);
+	box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 0 0 80px rgba(155, 125, 184, 0.1);
+}
+
+/* ----------------------
+   Splash Screen
+   ---------------------- */
+.dark #splash-screen {
+	background: 
+		radial-gradient(ellipse at 50% 30%, rgba(113, 98, 122, 0.2) 0%, transparent 60%),
+		linear-gradient(180deg, #1a1721 0%, #201c29 100%) !important;
+}
+
+/* ----------------------
+   Chat Message Input (legacy - kept for compatibility)
+   ---------------------- */
+
+/* ----------------------
+   Suggestion Cards
+   ---------------------- */
+.dark .suggestion-card,
+.dark [class*="hover:bg-gray"] {
+	transition: all 0.2s ease;
+}
+
+.dark .suggestion-card:hover,
+.dark [class*="hover:bg-gray"]:hover {
+	background: var(--gradient-subtle) !important;
+	border-color: rgba(155, 125, 184, 0.15) !important;
+}
+
+/* ----------------------
+   Navbar gradient fade
+   ---------------------- */
+.dark #navbar-bg-gradient-to-b {
+	background: linear-gradient(
+		180deg,
+		rgba(26, 23, 33, 0.95) 0%,
+		rgba(26, 23, 33, 0.7) 50%,
+		transparent 100%
+	) !important;
+}
+
+/* ----------------------
+   Chat bubbles
+   ---------------------- */
+.dark .assistant-message {
+	background: linear-gradient(135deg, rgba(42, 37, 55, 0.6) 0%, rgba(37, 33, 49, 0.5) 100%);
+	border-left: 2px solid rgba(155, 125, 184, 0.3);
+}
+
+/* ----------------------
+   Icons subtle glow
+   ---------------------- */
+.dark .sidebar-new-chat-icon {
+	filter: drop-shadow(0 0 8px rgba(185, 156, 209, 0.3));
+}
+
+/* ----------------------
+   Transitions
+   ---------------------- */
+input, textarea, select, button, a {
+	transition: all 0.2s ease;
+}
+
+/* ----------------------
+   Animated accent line
+   ---------------------- */
+@keyframes gradientShift {
+	0% { background-position: 0% 50%; }
+	50% { background-position: 100% 50%; }
+	100% { background-position: 0% 50%; }
+}
+
+.dark .accent-line {
+	background: var(--gradient-accent);
+	background-size: 200% 200%;
+	animation: gradientShift 3s ease infinite;
+}
+
+/* ============================================
+   MAIN CHAT INTERFACE - Futuristic Styling
+   ============================================ */
+
+/* Plus pattern background for main chat area */
+/* Works in both dark mode and as fallback */
+body::after {
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	pointer-events: none;
+	z-index: 1;
+	background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239b7db8' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+	mask-image: radial-gradient(ellipse at center, transparent 5%, black 70%);
+	-webkit-mask-image: radial-gradient(ellipse at center, transparent 5%, black 70%);
+}
+
+/* ----------------------
+   Chat Input Box - Futuristic (Obsidian Theme)
+   ---------------------- */
+.obsidian-chat-input {
+	background: rgba(22, 19, 32, 0.85) !important;
+	border: 1px solid rgba(155, 125, 184, 0.2) !important;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 40px rgba(155, 125, 184, 0.08) !important;
+	backdrop-filter: blur(20px) !important;
+}
+
+.obsidian-chat-input:focus-within {
+	border-color: rgba(185, 156, 209, 0.35) !important;
+	box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), 0 0 60px rgba(155, 125, 184, 0.15) !important;
+}
+
+/* Remove borders from wrapper divs only */
+.obsidian-chat-input > div,
+.obsidian-chat-input > div > div {
+	border: none !important;
+	outline: none !important;
+	background: transparent !important;
+}
+
+/* ProseMirror editor text - ensure always visible */
+.obsidian-chat-input .ProseMirror,
+.obsidian-chat-input .ProseMirror p,
+.obsidian-chat-input .ProseMirror span,
+.obsidian-chat-input .ProseMirror div {
+	color: #e8e0f0 !important;
+	opacity: 1 !important;
+	visibility: visible !important;
+	-webkit-text-fill-color: #e8e0f0 !important;
+}
+
+.obsidian-chat-input .ProseMirror {
+	caret-color: #b99cd1 !important;
+}
+
+/* Placeholder text */
+.obsidian-chat-input .ProseMirror p.is-editor-empty:first-child::before {
+	color: rgba(155, 125, 184, 0.5) !important;
+	-webkit-text-fill-color: rgba(155, 125, 184, 0.5) !important;
+}
+
+
+/* ----------------------
+   Greeting Text - Futuristic
+   ---------------------- */
+.text-3xl {
+	background: linear-gradient(135deg, #ffffff 0%, #e0d6eb 40%, #c9bdd6 100%) !important;
+	-webkit-background-clip: text !important;
+	-webkit-text-fill-color: transparent !important;
+	background-clip: text !important;
+	filter: drop-shadow(0 0 20px rgba(185, 156, 209, 0.25));
+}
+
+/* ----------------------
+   Suggestion Cards
+   ---------------------- */
+/* Target the suggestion prompt buttons specifically */
+.mx-5 button,
+[class*="max-w-2xl"] button {
+	background: rgba(30, 26, 42, 0.6) !important;
+	border: 1px solid rgba(155, 125, 184, 0.15) !important;
+	transition: all 0.3s ease !important;
+	overflow: visible !important;
+}
+
+.mx-5 button:hover,
+[class*="max-w-2xl"] button:hover {
+	background: rgba(40, 35, 55, 0.75) !important;
+	border-color: rgba(185, 156, 209, 0.3) !important;
+	box-shadow: 0 4px 20px rgba(155, 125, 184, 0.15) !important;
+}
+
+/* ----------------------
+   Send Button
+   ---------------------- */
+html.dark .obsidian-chat-input button[type="submit"],
+html.dark .obsidian-chat-input button:has(svg) {
+	color: rgba(185, 156, 209, 0.8) !important;
+	transition: all 0.3s ease !important;
+	border: none !important;
+}
+
+html.dark .obsidian-chat-input button[type="submit"]:hover,
+html.dark .obsidian-chat-input button:has(svg):hover {
+	color: #b99cd1 !important;
+	filter: drop-shadow(0 0 8px rgba(185, 156, 209, 0.5)) !important;
+}
+
+/* Send button with background */
+html.dark .obsidian-chat-input button.bg-black,
+html.dark .obsidian-chat-input button[class*="bg-gray-900"] {
+	background: linear-gradient(135deg, #7d6c91 0%, #5b4965 100%) !important;
+	border: none !important;
+	box-shadow: 0 2px 10px rgba(155, 125, 184, 0.3) !important;
+}
+
+html.dark .obsidian-chat-input button.bg-black:hover,
+html.dark .obsidian-chat-input button[class*="bg-gray-900"]:hover {
+	background: linear-gradient(135deg, #8a7a9e 0%, #6b5a77 100%) !important;
+	box-shadow: 0 4px 20px rgba(185, 156, 209, 0.4) !important;
+	transform: scale(1.05) !important;
+}
+
+/* ----------------------
+   Model Selector
+   ---------------------- */
+html.dark [class*="model-selector"],
+html.dark button[aria-haspopup="menu"] {
+	transition: all 0.3s ease !important;
+}
+
+html.dark button[aria-haspopup="menu"]:hover {
+	color: #c9bdd6 !important;
+}
+
+/* ----------------------
+   Sidebar Enhancement
+   ---------------------- */
+#sidebar,
+.sidebar,
+nav[class*="flex-col"] {
+	background: linear-gradient(180deg, rgba(18, 15, 25, 0.98) 0%, rgba(22, 19, 32, 0.95) 100%) !important;
+	border-right: 1px solid rgba(155, 125, 184, 0.12) !important;
+}
+
+#sidebar button:hover,
+#sidebar a:hover,
+.sidebar button:hover,
+.sidebar a:hover {
+	background: linear-gradient(135deg, rgba(155, 125, 184, 0.12) 0%, rgba(113, 98, 122, 0.08) 100%) !important;
+}
+
+/* New Chat button glow */
+#sidebar button:first-child:hover {
+	box-shadow: 0 0 25px rgba(155, 125, 184, 0.25) !important;
+}
+
+/* ----------------------
+   Placeholder/Empty State
+   ---------------------- */
+html.dark .m-auto.w-full.max-w-6xl {
+	position: relative;
+}
+
+/* ----------------------
+   Message bubbles
+   ---------------------- */
+html.dark [class*="message"] {
+	border-radius: 12px !important;
+}
+
+html.dark .prose {
+	color: #e0d6eb !important;
+}
+
+/* ----------------------
+   Floating elements glow
+   ---------------------- */
+html.dark .fixed button,
+html.dark .absolute button {
+	transition: all 0.3s ease !important;
+}
+
+/* ----------------------
+   Dropdown menus
+   ---------------------- */
+html.dark [role="menu"],
+html.dark [role="listbox"],
+html.dark .dropdown-content {
+	background: linear-gradient(135deg, rgba(30, 26, 40, 0.98) 0%, rgba(35, 30, 48, 0.95) 100%) !important;
+	border: 1px solid rgba(155, 125, 184, 0.15) !important;
+	backdrop-filter: blur(20px) !important;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark [role="menuitem"]:hover,
+html.dark [role="option"]:hover {
+	background: linear-gradient(135deg, rgba(155, 125, 184, 0.15) 0%, rgba(113, 98, 122, 0.1) 100%) !important;
+}
+
+/* ----------------------
+   Icons
+   ---------------------- */
+html.dark svg {
+	transition: all 0.3s ease !important;
+}
+
+html.dark button:hover svg {
+	filter: drop-shadow(0 0 4px rgba(185, 156, 209, 0.4)) !important;
+}
+
+/* ----------------------
+   Animated background pulse
+   ---------------------- */
+@keyframes subtlePulse {
+	0%, 100% { opacity: 0.6; }
+	50% { opacity: 0.8; }
+}
+
+html.dark body::before {
+	animation: subtlePulse 8s ease-in-out infinite;
+}
