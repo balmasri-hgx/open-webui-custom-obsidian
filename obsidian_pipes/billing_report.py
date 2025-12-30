@@ -130,6 +130,10 @@ class Pipe:
             if last_message.get("role") == "user":
                 user_message = last_message.get("content", "")
         
+        # Check if user wants help FIRST (before any processing)
+        if "help" in user_message.lower():
+            return self._show_help()
+        
         # Check for files in various locations
         files = __files__ or []
         
@@ -163,10 +167,6 @@ class Pipe:
         # If batch items found, process multiple
         if batch_items:
             return self._process_batch(batch_items, params, __user__, source="📝 Text input")
-        
-        # Check if user wants help
-        if "help" in user_message.lower():
-            return self._show_help()
         
         # Check if user provided meaningful parameters
         has_protocol = "protocol" in params

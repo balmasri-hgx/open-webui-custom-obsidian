@@ -440,10 +440,15 @@ An error occurred while processing the document.
     def _format_response(self, result: dict, file_name: str) -> str:
         """Format the n8n response for display in chat."""
         
+        # Debug: Log raw response structure
+        print(f"[Diagnostic OCR] Raw response type: {type(result)}")
+        print(f"[Diagnostic OCR] Raw response keys: {result.keys() if isinstance(result, dict) else 'N/A'}")
+        
         # Handle array response (n8n often returns arrays)
         if isinstance(result, list):
             if len(result) > 0 and isinstance(result[0], dict):
                 result = result[0]
+                print(f"[Diagnostic OCR] Unwrapped array, keys: {result.keys()}")
             else:
                 return f"""## ✅ Document Processed
 
@@ -455,11 +460,15 @@ An error occurred while processing the document.
 ```
 """
         
-        # Extract fields from response
-        total_pages = result.get("total_pages", 0)
-        categories_found = result.get("categories_found", {})
-        accession_numbers = result.get("accession_numbers", [])
-        pages = result.get("pages", [])
+        # Extract fields from response - try multiple possible field names
+        total_pages = result.get("total_pages") or result.get("totalPages") or result.get("pageCount") or 0
+        categories_found = result.get("categories_found") or result.get("categoriesFound") or result.get("summary") or {}
+        accession_numbers = result.get("accession_numbers") or result.get("accessionNumbers") or []
+        pages = result.get("pages") or result.get("results") or result.get("classifications") or []
+        
+        # Debug: Log extracted data
+        if pages:
+            print(f"[Diagnostic OCR] First page data: {pages[0] if pages else 'empty'}")
         message = result.get("message", "")
         
         # Build output
@@ -495,15 +504,34 @@ An error occurred while processing the document.
             output += "| Page | Category | Description | Accession # |\n"
             output += "|------|----------|-------------|-------------|\n"
             
-            for page in pages:
-                page_num = page.get("page", "?")
-                cat = page.get("category", "?")
-                desc = page.get("category_description", CATEGORY_DESCRIPTIONS.get(int(cat) if str(cat).isdigit() else 0, "Unknown"))
-                acc = page.get("accession_number", "") or ""
+            for idx, page in enumerate(pages):
+                # Handle multiple possible field names for page number
+                page_num = (
+                    page.get("page") or 
+                    page.get("page_number") or 
+                    page.get("pageNumber") or 
+                    page.get("pageNum") or
+                    page.get("index") or
+                    idx + 1  # Fallback to 1-based index
+                )
+                
+                # Handle category field
+                cat = page.get("category") or page.get("classification") or "?"
+                
+                # Handle description - try multiple sources
+                desc = (
+                    page.get("category_description") or 
+                    page.get("description") or
+                    page.get("categoryDescription") or
+                    CATEGORY_DESCRIPTIONS.get(int(cat) if str(cat).isdigit() else 0, "Unknown")
+                )
+                
+                # Handle accession number
+                acc = page.get("accession_number") or page.get("accessionNumber") or page.get("accession") or ""
                 
                 # Truncate description if too long
-                if len(desc) > 35:
-                    desc = desc[:32] + "..."
+                if len(str(desc)) > 35:
+                    desc = str(desc)[:32] + "..."
                 
                 output += f"| {page_num} | {cat} | {desc} | {acc} |\n"
             
