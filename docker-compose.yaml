@@ -26,11 +26,11 @@ services:
     container_name: obsidian
     volumes:
       - obsidian-data:/app/backend/data
-      # Mount static files for live editing (no rebuild needed)
-      # Edit splash.css, custom.css, logos etc. and refresh browser!
-      - ./static/static:/app/backend/open_webui/static:ro
-      # Mount fonts folder
-      - ./static/assets/fonts:/app/backend/open_webui/static/assets/fonts:ro
+      # NOTE: Volume mounts commented out for Dokploy/CI deployments
+      # Static files are built into the Docker image
+      # Uncomment these for local development with live editing:
+      # - ./static/static:/app/backend/open_webui/static:ro
+      # - ./static/assets/fonts:/app/backend/open_webui/static/assets/fonts:ro
     depends_on:
       - ollama
     ports:
