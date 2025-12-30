@@ -14,6 +14,7 @@ import base64
 
 from open_webui.utils.auth import get_verified_user
 from open_webui.models.models import Models
+from open_webui.env import WEBHOOK_SSL_VERIFICATION
 
 log = logging.getLogger(__name__)
 
@@ -147,7 +148,7 @@ async def invoke_webhook(
     log.info(f"Invoking webhook for model {form_data.model_id} by user {user.email}")
     
     try:
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=120.0, verify=WEBHOOK_SSL_VERIFICATION) as client:
             response = await client.post(
                 webhook_config.webhook_url,
                 json=payload,
@@ -327,7 +328,7 @@ async def invoke_webhook_with_files(
     log.info(f"Invoking webhook with files for model {model_id} by user {user.email}")
     
     try:
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=120.0, verify=WEBHOOK_SSL_VERIFICATION) as client:
             response = await client.post(
                 webhook_config.webhook_url,
                 json=payload,

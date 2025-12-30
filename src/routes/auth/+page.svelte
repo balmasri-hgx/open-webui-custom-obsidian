@@ -128,6 +128,7 @@
 		await setSessionUser(sessionUser, localStorage.getItem('redirectPath') || null);
 	};
 
+	// Onboarding disabled - go directly to login/signup
 	let onboarding = false;
 
 	async function setLogoImage() {
@@ -167,8 +168,11 @@
 
 		if (($config?.features.auth_trusted_header ?? false) || $config?.features.auth === false) {
 			await signInHandler();
-		} else {
-			onboarding = $config?.onboarding ?? false;
+		}
+		// Onboarding screen disabled - always show login form directly
+		// If it's first-time setup, show signup mode instead
+		if ($config?.onboarding) {
+			mode = 'signup';
 		}
 	});
 </script>
@@ -179,13 +183,7 @@
 	</title>
 </svelte:head>
 
-<OnBoarding
-	bind:show={onboarding}
-	getStartedHandler={() => {
-		onboarding = false;
-		mode = $config?.features.enable_ldap ? 'ldap' : 'signup';
-	}}
-/>
+<!-- Onboarding screen disabled - users go directly to login/signup -->
 
 <div class="w-full h-screen max-h-[100dvh] text-white relative" id="auth-page">
 	<div class="w-full h-full absolute top-0 left-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950"></div>

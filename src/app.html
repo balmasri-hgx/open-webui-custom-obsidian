@@ -22,19 +22,25 @@
 			name="viewport"
 			content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
 		/>
-		<meta name="theme-color" content="#2e293a" />
+		<meta name="theme-color" content="#000000" />
 		<meta name="robots" content="noindex,nofollow" />
 
 		<!-- Anurati Font - Preload for splash screen -->
-		<link rel="preload" href="/static/assets/fonts/Anurati.otf" as="font" type="font/otf" crossorigin>
+		<link rel="preload" href="/assets/fonts/Anurati.otf" as="font" type="font/otf" crossorigin>
 		
 		<style>
 			@font-face {
 				font-family: 'Anurati';
-				src: url('/static/assets/fonts/Anurati.otf') format('opentype');
+				src: url('/assets/fonts/Anurati.otf') format('opentype');
 				font-weight: normal;
 				font-style: normal;
 				font-display: block;
+			}
+			
+			/* Ensure splash screen text uses Anurati */
+			#splash-screen .terminal-text,
+			#splash-screen .terminal-line {
+				font-family: 'Anurati', 'Arial Black', sans-serif !important;
 			}
 		</style>
 
@@ -61,14 +67,14 @@
 
 				if (localStorage.theme === 'system') {
 					document.documentElement.classList.add(prefersDarkTheme ? 'dark' : 'light');
-					metaThemeColorTag.setAttribute('content', prefersDarkTheme ? '#2e293a' : '#f5f3f7');
+					metaThemeColorTag.setAttribute('content', prefersDarkTheme ? '#000000' : '#f5f3f7');
 				} else if (localStorage.theme === 'oled-dark') {
-					document.documentElement.style.setProperty('--color-gray-800', '#1c1926');
-					document.documentElement.style.setProperty('--color-gray-850', '#151320');
-					document.documentElement.style.setProperty('--color-gray-900', '#0f0d17');
-					document.documentElement.style.setProperty('--color-gray-950', '#0a0910');
+					document.documentElement.style.setProperty('--color-gray-800', '#0a0510');
+					document.documentElement.style.setProperty('--color-gray-850', '#050208');
+					document.documentElement.style.setProperty('--color-gray-900', '#020103');
+					document.documentElement.style.setProperty('--color-gray-950', '#000000');
 					document.documentElement.classList.add('dark');
-					metaThemeColorTag.setAttribute('content', '#0a0910');
+					metaThemeColorTag.setAttribute('content', '#000000');
 				} else if (localStorage.theme === 'light') {
 					document.documentElement.classList.add('light');
 					metaThemeColorTag.setAttribute('content', '#f5f3f7');
@@ -77,7 +83,7 @@
 					metaThemeColorTag.setAttribute('content', '#983724');
 				} else {
 					document.documentElement.classList.add('dark');
-					metaThemeColorTag.setAttribute('content', '#2e293a');
+					metaThemeColorTag.setAttribute('content', '#000000');
 				}
 
 				window.matchMedia('(prefers-color-scheme: dark)').addListener((e) => {
@@ -85,7 +91,7 @@
 						if (e.matches) {
 							document.documentElement.classList.add('dark');
 							document.documentElement.classList.remove('light');
-							metaThemeColorTag.setAttribute('content', '#2e293a');
+							metaThemeColorTag.setAttribute('content', '#000000');
 						} else {
 							document.documentElement.classList.add('light');
 							document.documentElement.classList.remove('dark');
@@ -100,21 +106,16 @@
 
 		%sveltekit.head%
 		
-		<!-- Splash screen controller - MUST be inline to work before app loads -->
+		<!-- Splash screen controller - Persistent animation, then fade -->
 		<script>
 			(function() {
 				// ===== SPLASH TIMING CONFIG =====
-				const SPLASH_MIN_TIME = 4000;  // 4 seconds minimum display
-				const FADE_DURATION = 800;     // 0.8 second fade out
+				const ANIMATION_DURATION = 5500;  // Full animation plays (5.5 seconds for typing + pause)
+				const FADE_DURATION = 800;        // Fade out duration
 				// ================================
 				
-				let appReady = false;
-				let minTimeElapsed = false;
-				
-				const hideSplash = function() {
-					// Only hide when BOTH conditions are met
-					if (!appReady || !minTimeElapsed) return;
-					
+				// Always wait for the full animation to complete
+				setTimeout(function() {
 					const splash = document.getElementById('splash-screen');
 					if (splash && !splash.classList.contains('hiding')) {
 						splash.classList.add('hiding');
@@ -125,69 +126,19 @@
 							splash.remove();
 						}, FADE_DURATION);
 					}
-				};
-				
-				// Timer: minimum display time (4 seconds)
-				setTimeout(function() {
-					minTimeElapsed = true;
-					console.log('[Splash] Min time elapsed');
-					hideSplash();
-				}, SPLASH_MIN_TIME);
-				
-				// Listen for app-ready event from Svelte layout
-				window.addEventListener('app-ready', function() {
-					console.log('[Splash] App ready event received');
-					appReady = true;
-					hideSplash();
-				});
-				
-				// Fallback: if app-ready never fires, hide after extended time
-				setTimeout(function() {
-					if (!appReady) {
-						console.log('[Splash] Fallback timeout - forcing ready');
-						appReady = true;
-						hideSplash();
-					}
-				}, 10000); // 10 second fallback
+				}, ANIMATION_DURATION);
 			})();
 		</script>
 	</head>
 
 	<body data-sveltekit-preload-data="hover">
-		<!-- Splash Screen - MUST be inline HTML to render before JS -->
+		<!-- Splash Screen - Clean terminal typing animation -->
 		<div id="splash-screen">
-			<div class="splash-grid"></div>
-			<div class="splash-glow"></div>
-			
-			<div class="splash-content">
-				<div class="splash-logo-container">
-					<img 
-						id="splash-logo" 
-						src="/static/HLX-white.png" 
-						alt="Obsidian"
-						class="splash-logo"
-					/>
-					<div class="splash-logo-glow"></div>
-				</div>
-				
-				<div class="splash-title-container">
-					<h1 class="splash-title">OBSIDIAN</h1>
-					<div class="splash-subtitle">INTELLIGENCE PLATFORM</div>
-				</div>
-				
-				<div class="splash-loader">
-					<div class="splash-loader-track">
-						<div class="splash-loader-bar"></div>
-						<div class="splash-loader-glow"></div>
-					</div>
-					<div class="splash-loader-text">INITIALIZING SYSTEM</div>
+			<div class="terminal-container">
+				<div class="terminal-line">
+					<span class="terminal-text">OBSIDIAN</span><span class="terminal-cursor"></span>
 				</div>
 			</div>
-			
-			<div class="splash-corner splash-corner-tl"></div>
-			<div class="splash-corner splash-corner-tr"></div>
-			<div class="splash-corner splash-corner-bl"></div>
-			<div class="splash-corner splash-corner-br"></div>
 		</div>
 
 		<div style="display: contents">%sveltekit.body%</div>

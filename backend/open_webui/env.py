@@ -714,6 +714,13 @@ AIOHTTP_CLIENT_SESSION_TOOL_SERVER_SSL = (
 )
 
 
+# Webhook SSL verification (for n8n and external workflow integrations)
+# Set to False if your webhook server uses a self-signed certificate
+WEBHOOK_SSL_VERIFICATION = (
+    os.environ.get("WEBHOOK_SSL_VERIFICATION", "True").lower() == "true"
+)
+
+
 ####################################
 # SENTENCE TRANSFORMERS
 ####################################

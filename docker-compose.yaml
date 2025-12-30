@@ -28,9 +28,9 @@ services:
       - obsidian-data:/app/backend/data
       # Mount static files for live editing (no rebuild needed)
       # Edit splash.css, custom.css, logos etc. and refresh browser!
-      - ./static/static:/app/backend/static/static:ro
+      - ./static/static:/app/backend/open_webui/static:ro
       # Mount fonts folder
-      - ./static/assets/fonts:/app/backend/static/assets/fonts:ro
+      - ./static/assets/fonts:/app/backend/open_webui/static/assets/fonts:ro
     depends_on:
       - ollama
     ports:
